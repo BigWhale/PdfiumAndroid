@@ -76,6 +76,8 @@ public class PdfiumCore {
 
     private native long nativeGetBookmarkDestIndex(long docPtr, long bookmarkPtr);
 
+    private native float[] nativeGetBookmarkDestCoords(long docPtr, long bookmarkPtr);
+
     private native Size nativeGetPageSizeByIndex(long docPtr, int pageIndex, int dpi);
 
     private native long[] nativeGetPageLinks(long pagePtr);
@@ -376,6 +378,15 @@ public class PdfiumCore {
         bookmark.mNativePtr = bookmarkPtr;
         bookmark.title = nativeGetBookmarkTitle(bookmarkPtr);
         bookmark.pageIdx = nativeGetBookmarkDestIndex(doc.mNativeDocPtr, bookmarkPtr);
+
+        /* If destination coordinates are avaliable, extract them */
+        float[] coords = nativeGetBookmarkDestCoords(doc.mNativeDocPtr, bookmarkPtr);
+        if (coords != null && coords.length == 6) {
+            if (coords[0] != 0) bookmark.destX = coords[1];
+            if (coords[2] != 0) bookmark.destY = coords[3];
+            if (coords[4] != 0) bookmark.destZoom = coords[5];
+        }
+
         tree.add(bookmark);
 
         Long child = nativeGetFirstChildBookmark(doc.mNativeDocPtr, bookmarkPtr);

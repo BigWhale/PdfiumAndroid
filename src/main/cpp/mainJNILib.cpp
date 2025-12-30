@@ -636,6 +636,38 @@ JNI_FUNC(jlong, PdfiumCore, nativeGetBookmarkDestIndex)(JNI_ARGS, jlong docPtr, 
     return FPDFDest_GetDestPageIndex(doc->pdfDocument, dest);
 }
 
+JNI_FUNC(jfloatArray, PdfiumCore, nativeGetBookmarkDestCoords)(JNI_ARGS, jlong docPtr, jlong bookmarkPtr) {
+    DocumentFile *doc = reinterpret_cast<DocumentFile*>(docPtr);
+    FPDF_BOOKMARK bookmark = reinterpret_cast<FPDF_BOOKMARK>(bookmarkPtr);
+
+    FPDF_DEST dest = FPDFBookmark_GetDest(doc->pdfDocument, bookmark);
+    if (dest == NULL) {
+        return NULL;
+    }
+
+    FPDF_BOOL hasX, hasY, hasZoom;
+    FS_FLOAT x, y, zoom;
+
+    FPDF_BOOL success = FPDFDest_GetLocationInPage(dest, &hasX, &hasY, &hasZoom, &x, &y, &zoom);
+    if (!success) {
+        return NULL;
+    }
+
+    // Return array: [hasX, x, hasY, y, hasZoom, zoom]
+    jfloatArray result = env->NewFloatArray(6);
+    if (result == NULL) {
+        return NULL;
+    }
+
+    jfloat buf[6] = {
+        (jfloat)hasX, (jfloat)x,
+        (jfloat)hasY, (jfloat)y,
+        (jfloat)hasZoom, (jfloat)zoom
+    };
+    env->SetFloatArrayRegion(result, 0, 6, buf);
+    return result;
+}
+
 JNI_FUNC(jlongArray, PdfiumCore, nativeGetPageLinks)(JNI_ARGS, jlong pagePtr) {
     FPDF_PAGE page = reinterpret_cast<FPDF_PAGE>(pagePtr);
     int pos = 0;

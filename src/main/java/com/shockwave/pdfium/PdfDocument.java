@@ -60,6 +60,11 @@ public class PdfDocument {
         long pageIdx;
         long mNativePtr;
 
+        // Destination coordinates (null if not specified in PDF)
+        Float destX;
+        Float destY;
+        Float destZoom;
+
         public List<Bookmark> getChildren() {
             return children;
         }
@@ -74,6 +79,18 @@ public class PdfDocument {
 
         public long getPageIdx() {
             return pageIdx;
+        }
+
+        public Float getDestX() {
+            return destX;
+        }
+
+        public Float getDestY() {
+            return destY;
+        }
+
+        public Float getDestZoom() {
+            return destZoom;
         }
     }
 
